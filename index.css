@@ -1,0 +1,76 @@
+@import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,300;0,600;1,300;1,600&display=swap');
+@font-face {
+	font-family: 'IBMPlexSansKR';
+	src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_20-07@1.0/IBMPlexSansKR-Light.woff') format('woff');
+	font-weight: normal;
+	font-style: normal;
+}
+@font-face {
+	font-family: 'IBMPlexSansKR';
+	src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_20-07@1.0/IBMPlexSansKR-SemiBold.woff') format('woff');
+	font-weight: bold;
+	font-style: normal;
+}
+
+body{
+	margin: 0;
+	background-color: #161618;
+	color: #EDEDF0;
+	font-family: 'Source Code Pro', 'IBMPlexSansKR';
+	font-size: 16px;
+}
+
+::selection{
+	background-color: #EDEDF0;
+	color: #161618;
+}
+
+#container{
+	width: 80%;
+	margin: 25px auto 0;
+}
+
+#menu{
+	user-select: none;
+	margin-bottom: 10px;
+	text-align: center;
+}
+
+#menu span:active{
+	opacity: 75%;
+}
+
+#game{
+	user-select: none;
+	text-align: center;
+}
+
+#game span:active{
+	opacity: 75%;
+}
+
+#close{
+	user-select: none;
+	text-align: center;
+}
+
+#close:active{
+	opacity: 75%
+}
+
+#search{
+	display: block;
+	margin: 50px auto;
+	padding: 5px 10px;
+	border: 1px solid #EDEDF0;
+	outline: none;
+	background-color: inherit;
+	color: inherit;
+	font-family: inherit;
+	font-size: inherit;
+}
+
+.head{
+	font-weight: bold;
+	font-size: 20px;
+}
