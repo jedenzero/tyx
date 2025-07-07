@@ -49,6 +49,10 @@ body{
 	opacity: 75%;
 }
 
+#view-content{
+	margin: 10px 0;
+}
+
 #close{
 	user-select: none;
 	text-align: center;
@@ -61,6 +65,7 @@ body{
 #search{
 	display: block;
 	margin: 50px auto;
+	border-radius: 0;
 	padding: 5px 10px;
 	border: 1px solid #EDEDF0;
 	outline: none;
@@ -73,4 +78,8 @@ body{
 .head{
 	font-weight: bold;
 	font-size: 20px;
+}
+
+.head:not(:first-of-type){
+	margin-top: 25px;
 }
