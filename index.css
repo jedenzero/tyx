@@ -25,6 +25,10 @@ body{
 	color: #161618;
 }
 
+em{
+	color: #7090FF;
+}
+
 #container{
 	width: 80%;
 	margin: 25px auto 0;
@@ -43,6 +47,7 @@ body{
 #game{
 	user-select: none;
 	text-align: center;
+	word-break: keep-all;
 }
 
 #game span:active{
