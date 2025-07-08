@@ -95,6 +95,8 @@ function search_ver(target){
         add(`<div class="head">${row['단어']}</div>`);
         add(`<div><em>${row['품사']}</em></div>`);
         if(meanings.length == 1){
+            const el = meanings[0];
+            
             add(`<div>${cleanse(el)}</div>`)
             if(el.includes(' ¶')){
                 const examples = el.split(' ¶').slice(1);
@@ -105,7 +107,7 @@ function search_ver(target){
         }
         else{
             meanings.forEach((el, index) => {
-                add(`<div>${index}. ${cleanse(el)}</div>`);
+                add(`<div>${index+1}. ${cleanse(el)}</div>`);
                 if(el.includes(' ¶')){
                     const examples = el.split(' ¶').slice(1);
                     examples.forEach(ex => {
@@ -160,7 +162,7 @@ function merge(elements){
 }
 
 function cleanse(string){
-    return string.replace(/ ¶[^;]*(?=[;$])/g, '');
+    return string.replace(/ ¶[^;]*(;|$)/g, '$1');
 }
 
 setUI();
