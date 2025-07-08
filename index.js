@@ -21,7 +21,7 @@ function setUI(){
         });
     }
     
-    search_input.addEventListener('click', () => {
+    search_input.addEventListener('input', () => {
         search(search_input.value);
     });
 }
@@ -66,24 +66,59 @@ function search_language(target){
         return;
     }
     
-    const result_start = processed.filter(row => row['언어명'].startsWith(target));
-    const result_include = processed.filter(row => row['언어명'].includes(target));
+    const result_start = languages.filter(row => row['언어명'].startsWith(target));
+    const result_include = languages.filter(row => row['언어명'].includes(target));
     const result_arr = merge([result_start, result_include]);
     
     result_arr.forEach(row => {
-        add(`<div class="header"><a href="?lang=${row['코드']}">${row['언어명']}</a></div>`);
+        add(`<div class="head"><a href="?lang=${row['코드']}">${row['언어명']}</a></div>`);
         add(`<div><em>코드</em>: ${row['코드']}</div>`);
         row['설명'] && add(`<div>${row['설명']}</div>`);
     });
 }
 
+// search_ver: 수직형 시트, 즉 다품사 어휘가 품사에 따라 다른 행에 나뉘는 방식
 function search_ver(target){
     reset();
     if(target == ''){
         return;
     }
+    const result_word_start = processed.filter(row => row['단어'].startsWith(target));
+    const result_word_include = processed.filter(row => row['단어'].includes(target));
+    const result_meaning_start = processed.filter(row => cleanse(row['뜻']).startsWith(target));
+    const result_meaning_include = processed.filter(row => cleanse(row['뜻']).includes(target));
+    const result_arr = merge([result_word_start, result_word_include, result_meaning_start, result_meaning_include]);
+    
+    result_arr.forEach(row => {
+        const meanings = row['뜻'].split(';');
+        
+        add(`<div class="head">${row['단어']}</div>`);
+        add(`<div><em>${row['품사']}</em></div>`);
+        if(meanings.length == 1){
+            add(`<div>${cleanse(el)}</div>`)
+            if(el.includes(' ¶')){
+                const examples = el.split(' ¶').slice(1);
+                examples.forEach(ex => {
+                    add(`<div class="example">${ex.split('  ')[0]}<br>${ex.split('  ')[1]}</div>`);
+                });
+            }
+        }
+        else{
+            meanings.forEach((el, index) => {
+                add(`<div>${index}. ${cleanse(el)}</div>`);
+                if(el.includes(' ¶')){
+                    const examples = el.split(' ¶').slice(1);
+                    examples.forEach(ex => {
+                        add(`<div class="example">${ex.split('  ')[0]}<br>${ex.split('  ')[1]}</div>`);
+                    });
+                }
+            });
+        }
+        add(`<div></div>`);
+    });
 }
 
+// search_hor: 수평형 시트, 즉 다품사 어휘가 품사에 따라 같은 행의 다른 열에 나뉘는 방식
 function search_hor(target){
     reset();
     if(target == ''){
@@ -122,6 +157,10 @@ function merge(elements){
     });
     
     return merged;
+}
+
+function cleanse(string){
+    return string.replace(/ ¶[^;]*(?=[;$])/g, '');
 }
 
 setUI();
