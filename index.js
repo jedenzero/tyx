@@ -3,28 +3,13 @@ let lang;
 let dictionary;
 let processed;
 let search;
-const part_of_words = ['명사'];
+let tags;
+const reserved_tags = ['단어', '어원', '뜻', '품사', '설명', '비고', '분류'];
+const all_pos = ['명사'];
+let pos;
 const view = document.getElementById('view');
 const search_input = document.getElementById('search');
 const result = document.getElementById('result');
-
-function setUI(){
-    const buttons = ['information', 'sort',
-        'filter', 'statistics', 'word-chain',
-        'anagram', 'wordle', 'fazan', 'hangman'
-    ];
-
-    for(let i of buttons){
-        const functionName = i.replaceAll('-', '_');
-        document.getElementById(i).addEventListener('click', () => {
-            window[functionName]();
-        });
-    }
-    
-    search_input.addEventListener('input', () => {
-        search(search_input.value);
-    });
-}
 
 async function setAssets(){
     const response1 = await fetch('https://docs.google.com/spreadsheets/d/1ABeYLqNSbcUduAzQKk8r0nJf6hdLMUhwuyMOsDZONKY/export?format=csv&gid=0');
@@ -49,15 +34,34 @@ async function setAssets(){
             skipEmptyLines: true
         }).data;
         processed = [...dictionary];
-        const tags = Object.keys(dictionary[0]);
+        tags = Object.keys(dictionary[0]);
 
         if(tags.includes('뜻')){
             search = search_ver;
         }
         else{
             search = search_hor;
+            pos = tags.filter(el => all_pos.includes(el));
         }
     }
+}
+
+function setUI(){
+    const buttons = ['information', 'sort',
+        'filter', 'statistics', 'word-chain',
+        'anagram', 'wordle', 'fazan', 'hangman'
+    ];
+
+    for(let i of buttons){
+        const functionName = i.replaceAll('-', '_');
+        document.getElementById(i).addEventListener('click', () => {
+            window[functionName]();
+        });
+    }
+    
+    search_input.addEventListener('input', () => {
+        search(search_input.value);
+    });
 }
 
 function search_language(target){
@@ -83,11 +87,12 @@ function search_ver(target){
     if(target == ''){
         return;
     }
-    const result_word_start = processed.filter(row => row['단어'].startsWith(target));
-    const result_word_include = processed.filter(row => row['단어'].includes(target));
-    const result_meaning_start = processed.filter(row => cleanse(row['뜻']).startsWith(target));
-    const result_meaning_include = processed.filter(row => cleanse(row['뜻']).includes(target));
-    const result_arr = merge([result_word_start, result_word_include, result_meaning_start, result_meaning_include]);
+    const result_word_start = processed.filter(row => row['단어'].startsWith(target)).toSorted((a, b) => a['단어'].length - b['단어'].length || a['단어'].localeCompare(b['단어']));
+    const result_word_include = processed.filter(row => row['단어'].includes(target)).toSorted((a, b) => a['단어'].length - b['단어'].length || a['단어'].localeCompare(b['단어']));
+    const result_meaning_equal = processed.filter(row => cleanse(row['뜻']).split(/,|;/).includes(target));
+    const result_meaning_start = processed.filter(row => cleanse(row['뜻']).split(/,|;/).some(meaning => meaning.startsWith(target)));
+    const result_meaning_include = processed.filter(row => cleanse(row['뜻']).split(/,|;/).some(meaning => meaning.includes(target)));
+    const result_arr = merge([result_word_start, result_word_include, result_meaning_equal, result_meaning_start, result_meaning_include]);
     
     result_arr.forEach(row => {
         const meanings = row['뜻'].split(';');
@@ -116,7 +121,12 @@ function search_ver(target){
                 }
             });
         }
-        add(`<div></div>`);
+        (row['설명'] || row['비고']) && add(`<div class="information">${row['설명'] || row['비고']}</div>`);
+        tags.forEach(el => {
+            if(!reserved_tags.includes(el)){
+                add(`<div><em>${el}</em> ${row[el]}</div>`);
+            }
+        });
     });
 }
 
@@ -128,16 +138,16 @@ function search_hor(target){
     }
 }
 
+function information(){
+    
+}
+
 function reset(){
     result.innerHTML = '';
 }
 
 function add(html){
     result.insertAdjacentHTML('beforeend', html);
-}
-
-function information(){
-    
 }
 
 function merge(elements){
@@ -165,5 +175,6 @@ function cleanse(string){
     return string.replace(/ ¶[^;]*(;|$)/g, '$1');
 }
 
-setUI();
-setAssets();
+setAssets().then(() => {
+    setUI();
+});
