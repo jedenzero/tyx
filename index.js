@@ -5,7 +5,11 @@ let processed;
 let search;
 let tags;
 const reserved_tags = ['단어', '어원', '뜻', '품사', '설명', '비고', '분류'];
-const all_pos = ['명사'];
+const all_pos = ['명사', '대명사', '의존명사', '분류사', '수분류사', '고유명사', '유정명사', '무정명사', '수사',
+    '동사', '조동사', '계사', '경동사', '자동사', '타동사', '형용동사', '서술사',
+    '한정사', '관사', '형용사', '관형사', '부사', '전치사', '후치사',
+    '조사', '어두', '어미', '접속사', '감탄사', '의문사', '소사', '허사',
+    '접두사', '접미사', '접요사', '접환사', '삽간사', '관통접사', '기타', '불명'];
 let pos;
 const view = document.getElementById('view');
 const search_input = document.getElementById('search');
@@ -95,35 +99,13 @@ function search_ver(target){
     const result_arr = merge([result_word_start, result_word_include, result_meaning_equal, result_meaning_start, result_meaning_include]);
     
     result_arr.forEach(row => {
-        const meanings = row['뜻'].split(';');
-        
         add(`<div class="head">${row['단어']}</div>`);
         add(`<div><em>${row['품사']}</em></div>`);
-        if(meanings.length == 1){
-            const el = meanings[0];
-            
-            add(`<div>${cleanse(el)}</div>`)
-            if(el.includes(' ¶')){
-                const examples = el.split(' ¶').slice(1);
-                examples.forEach(ex => {
-                    add(`<div class="example">${ex.split('  ')[0]}<br>${ex.split('  ')[1]}</div>`);
-                });
-            }
-        }
-        else{
-            meanings.forEach((el, index) => {
-                add(`<div>${index+1}. ${cleanse(el)}</div>`);
-                if(el.includes(' ¶')){
-                    const examples = el.split(' ¶').slice(1);
-                    examples.forEach(ex => {
-                        add(`<div class="example">${ex.split('  ')[0]}<br>${ex.split('  ')[1]}</div>`);
-                    });
-                }
-            });
-        }
+        addMeanings(row['뜻']);
+
         (row['설명'] || row['비고']) && add(`<div class="information">${row['설명'] || row['비고']}</div>`);
         tags.forEach(el => {
-            if(!reserved_tags.includes(el)){
+            if(!reserved_tags.includes(el) && row[el]){
                 add(`<div><em>${el}</em> ${row[el]}</div>`);
             }
         });
@@ -136,6 +118,27 @@ function search_hor(target){
     if(target == ''){
         return;
     }
+    const result_word_start = processed.filter(row => row['단어'].startsWith(target)).toSorted((a, b) => a['단어'].length - b['단어'].length || a['단어'].localeCompare(b['단어']));
+    const result_word_include = processed.filter(row => row['단어'].includes(target)).toSorted((a, b) => a['단어'].length - b['단어'].length || a['단어'].localeCompare(b['단어']));
+    const result_meaning_equal = processed.filter(row => pos.some(tag => cleanse(row[tag]).split(/,|;/).includes(target)));
+    const result_meaning_start = processed.filter(row => pos.some(tag => cleanse(row[tag]).split(/,|;/).some(el => el.startsWith(target))));
+    const result_meaning_include = processed.filter(row => pos.some(tag => cleanse(row[tag]).split(/,|;/).some(el => el.includes(target))));
+    const result_arr = merge([result_word_start, result_word_include, result_meaning_equal, result_meaning_start, result_meaning_include]);
+    
+    result_arr.forEach(row => {
+        add(`<div class="head">${row['단어']}</div>`);
+        pos.forEach(el => {
+            if(row[el]){
+                addMeanings(row[el]);
+            }
+        });
+        (row['설명'] || row['비고']) && add(`<div class="information">${row['설명'] || row['비고']}</div>`);
+        tags.forEach(el => {
+            if(!reserved_tags.includes(el) && row[el]){
+                add(`<div><em>${el}</em> ${row[el]}</div>`);
+            }
+        });
+    });
 }
 
 function information(){
@@ -173,6 +176,32 @@ function merge(elements){
 
 function cleanse(string){
     return string.replace(/ ¶[^;]*(;|$)/g, '$1');
+}
+
+function addMeanings(string){
+    const meanings = string.split(';');
+    if(meanings.length == 1){
+        const el = meanings[0];
+
+        add(`<div>${cleanse(el)}</div>`)
+        if(el.includes(' ¶')){
+            const examples = el.split(' ¶').slice(1);
+            examples.forEach(ex => {
+                add(`<div class="example">${ex.split('  ')[0]}<br>${ex.split('  ')[1]}</div>`);
+            });
+        }
+    }
+    else{
+        meanings.forEach((el, index) => {
+            add(`<div>${index+1}. ${cleanse(el)}</div>`);
+            if(el.includes(' ¶')){
+                const examples = el.split(' ¶').slice(1);
+                examples.forEach(ex => {
+                    add(`<div class="example">${ex.split('  ')[0]}<br>${ex.split('  ')[1]}</div>`);
+                });
+            }
+        });
+    }
 }
 
 setAssets().then(() => {
