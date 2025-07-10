@@ -129,12 +129,13 @@ function search_hor(target){
         add(`<div class="head">${row['단어']}</div>`);
         pos.forEach(el => {
             if(row[el]){
+                add(`<div><em>${el}</em></div>`);
                 addMeanings(row[el]);
             }
         });
         (row['설명'] || row['비고']) && add(`<div class="information">${row['설명'] || row['비고']}</div>`);
         tags.forEach(el => {
-            if(!reserved_tags.includes(el) && row[el]){
+            if(!reserved_tags.includes(el) && !all_pos.includes(el) && row[el]){
                 add(`<div><em>${el}</em> ${row[el]}</div>`);
             }
         });
