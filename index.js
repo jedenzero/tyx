@@ -16,7 +16,7 @@ const search_input = document.getElementById('search');
 const result = document.getElementById('result');
 
 async function setAssets(){
-    const response1 = await fetch('https://docs.google.com/spreadsheets/d/1ABeYLqNSbcUduAzQKk8r0nJf6hdLMUhwuyMOsDZONKY/export?format=csv&gid=0');
+    const response1 = await fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vQWe2vHDfJZ6hiMH77Jlzl4lvdWjiPxtHi82mKNBfketCHSTfG4ClZf6crrXDQGfEcqa76su7SspZxY/pub?output=csv');
     const text1 = await response1.text();
     languages = Papa.parse(text1, {
         header: true,
@@ -30,8 +30,7 @@ async function setAssets(){
     else{
         lang = languages.find(el => el['코드'] == query);
         const id = lang['아이디'];
-        const sheet = lang['시트'];
-        const response2 = await fetch(`https://docs.google.com/spreadsheets/d/${id}/export?format=csv&gid=${sheet}`);
+        const response2 = await fetch(`https://docs.google.com/spreadsheets/d/e/${id}/pub?output=csv`);
         const text2 = await response2.text();
         dictionary = Papa.parse(text2, {
             header: true,
