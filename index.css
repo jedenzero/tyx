@@ -1,22 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,300;0,600;1,300;1,600&display=swap');
-@font-face {
-	font-family: 'IBMPlexSansKR';
-	src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_20-07@1.0/IBMPlexSansKR-Light.woff') format('woff');
-	font-weight: normal;
-	font-style: normal;
-}
-@font-face {
-	font-family: 'IBMPlexSansKR';
-	src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_20-07@1.0/IBMPlexSansKR-SemiBold.woff') format('woff');
-	font-weight: bold;
-	font-style: normal;
-}
-
 body{
 	margin: 0;
 	background-color: #161618;
 	color: #EDEDF0;
-	font-family: 'Source Code Pro', 'IBMPlexSansKR';
+	font-family: 'unifontEx';
 	font-size: 16px;
 }
 
