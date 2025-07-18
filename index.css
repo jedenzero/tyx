@@ -28,7 +28,7 @@ em{
 }
 
 #menu span:active{
-	opacity: 75%;
+	opacity: 0.75;
 }
 
 #game{
@@ -38,7 +38,7 @@ em{
 }
 
 #game span:active{
-	opacity: 75%;
+	opacity: 0.75;
 }
 
 #view-content{
@@ -51,7 +51,7 @@ em{
 }
 
 #close:active{
-	opacity: 75%
+	opacity: 0.75
 }
 
 #search{
@@ -79,4 +79,14 @@ em{
 
 .head:not(:first-of-type){
 	margin-top: 25px;
+}
+
+.example{
+	margin: 5px 0 5px 2px;
+	padding-left: 10px;
+	border-left: 5px solid #EDEDF0;
+}
+
+.information{
+	opacity: 0.75;
 }
