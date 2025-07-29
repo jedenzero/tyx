@@ -30,7 +30,8 @@ async function setAssets(){
     else{
         lang = languages.find(el => el['코드'] == query);
         const id = lang['아이디'];
-        const response2 = await fetch(`https://docs.google.com/spreadsheets/d/e/${id}/pub?output=csv`);
+        const sheet = lang['시트'];
+        const response2 = await fetch(`https://docs.google.com/spreadsheets/d/e/${id}/pub?gid=${sheet}&output=csv`);
         const text2 = await response2.text();
         dictionary = Papa.parse(text2, {
             header: true,
