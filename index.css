@@ -11,11 +11,6 @@ body{
 	color: #161618;
 }
 
-em{
-	color: #7090FF;
-	font-style: normal;
-}
-
 #container{
 	width: 80%;
 	margin: 25px auto 0;
@@ -79,6 +74,21 @@ em{
 
 .head:not(:first-of-type){
 	margin-top: 25px;
+}
+
+.etymology{
+	opacity: 0.75;
+	font-size: 14px;
+}
+
+.tag{
+	opacity: 0.75;
+	font-size: 14px;
+}
+
+.tag_em{
+	color: #7090FF;
+	font-size: 14px;
 }
 
 .example{
