@@ -70,9 +70,6 @@ function setUI(){
 
 function search_language(target){
     reset();
-    if(target == ''){
-        return;
-    }
     
     const result_start = languages.filter(row => row['언어명'].startsWith(target));
     const result_include = languages.filter(row => row['언어명'].includes(target));
@@ -80,8 +77,8 @@ function search_language(target){
     
     result_arr.forEach(row => {
         add(`<div class="head"><a href="?lang=${row['코드']}">${row['언어명']}</a></div>`);
-        add(`<div><em>코드</em>: ${row['코드']}</div>`);
-        row['설명'] && add(`<div>${row['설명']}</div>`);
+        add(`<div><span class="tag_em">코드</span>: ${row['코드']}</div>`);
+        row['설명'] && add(`<div class="information">${row['설명']}</div>`);
     });
 }
 
@@ -98,15 +95,16 @@ function search_ver(target){
     const result_meaning_include = processed.filter(row => cleanse(row['뜻']).split(/,|;/).some(meaning => meaning.includes(target)));
     const result_arr = merge([result_word_start, result_word_include, result_meaning_equal, result_meaning_start, result_meaning_include]);
     
-    result_arr.forEach(row => {
+    result_arr.slice(0, 100).forEach(row => {
         add(`<div class="head">${row['단어']}</div>`);
-        add(`<div><em>${row['품사']}</em></div>`);
+        row['어원'] && add(`<div class="etymology">${row['어원']}</div>`);
+        add(`<div class="tag_em">${row['품사']}</div>`);
         addMeanings(row['뜻']);
 
         (row['설명'] || row['비고']) && add(`<div class="information">${row['설명'] || row['비고']}</div>`);
         tags.forEach(el => {
             if(!reserved_tags.includes(el) && row[el]){
-                add(`<div><em>${el}</em> ${row[el]}</div>`);
+                add(`<div><span class="tag">${el}</span><span> ${row[el]}</span></div>`);
             }
         });
     });
@@ -125,18 +123,19 @@ function search_hor(target){
     const result_meaning_include = processed.filter(row => pos.some(tag => cleanse(row[tag]).split(/,|;/).some(el => el.includes(target))));
     const result_arr = merge([result_word_start, result_word_include, result_meaning_equal, result_meaning_start, result_meaning_include]);
     
-    result_arr.forEach(row => {
+    result_arr.slice(0, 100).forEach(row => {
         add(`<div class="head">${row['단어']}</div>`);
+        row['어원'] && add(`<div class="etymology">${row['어원']}</div>`);
         pos.forEach(el => {
             if(row[el]){
-                add(`<div><em>${el}</em></div>`);
+                add(`<div><span class="tag_em">${el}</span></div>`);
                 addMeanings(row[el]);
             }
         });
         (row['설명'] || row['비고']) && add(`<div class="information">${row['설명'] || row['비고']}</div>`);
         tags.forEach(el => {
             if(!reserved_tags.includes(el) && !all_pos.includes(el) && row[el]){
-                add(`<div><em>${el}</em> ${row[el]}</div>`);
+                add(`<div><span class="tag">${el}</span> ${row[el]}</div>`);
             }
         });
     });
