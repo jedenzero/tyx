@@ -90,9 +90,9 @@ function search_ver(target){
     }
     const result_word_start = processed.filter(row => row['단어'].startsWith(target)).toSorted((a, b) => a['단어'].length - b['단어'].length || a['단어'].localeCompare(b['단어']));
     const result_word_include = processed.filter(row => row['단어'].includes(target)).toSorted((a, b) => a['단어'].length - b['단어'].length || a['단어'].localeCompare(b['단어']));
-    const result_meaning_equal = processed.filter(row => cleanse(row['뜻']).split(/,|;/).includes(target));
-    const result_meaning_start = processed.filter(row => cleanse(row['뜻']).split(/,|;/).some(meaning => meaning.startsWith(target)));
-    const result_meaning_include = processed.filter(row => cleanse(row['뜻']).split(/,|;/).some(meaning => meaning.includes(target)));
+    const result_meaning_equal = processed.filter(row => removeExamples(row['뜻']).split(/,|;/).some(meaning => meaning == target || removeParens(meaning) == target));
+    const result_meaning_start = processed.filter(row => removeExamples(row['뜻']).split(/,|;/).some(meaning => meaning.startsWith(target) || removeParens(meaning).startsWith(target)));
+    const result_meaning_include = processed.filter(row => removeExamples(row['뜻']).split(/,|;/).some(meaning => meaning.includes(target)));
     const result_arr = merge([result_word_start, result_word_include, result_meaning_equal, result_meaning_start, result_meaning_include]);
     
     result_arr.slice(0, 100).forEach(row => {
@@ -118,9 +118,9 @@ function search_hor(target){
     }
     const result_word_start = processed.filter(row => row['단어'].startsWith(target)).toSorted((a, b) => a['단어'].length - b['단어'].length || a['단어'].localeCompare(b['단어']));
     const result_word_include = processed.filter(row => row['단어'].includes(target)).toSorted((a, b) => a['단어'].length - b['단어'].length || a['단어'].localeCompare(b['단어']));
-    const result_meaning_equal = processed.filter(row => pos.some(tag => cleanse(row[tag]).split(/,|;/).includes(target)));
-    const result_meaning_start = processed.filter(row => pos.some(tag => cleanse(row[tag]).split(/,|;/).some(el => el.startsWith(target))));
-    const result_meaning_include = processed.filter(row => pos.some(tag => cleanse(row[tag]).split(/,|;/).some(el => el.includes(target))));
+    const result_meaning_equal = processed.filter(row => pos.some(tag => removeExamples(row[tag]).split(/,|;/).some(el => el == target || removeParens(el) == target)));
+    const result_meaning_start = processed.filter(row => pos.some(tag => removeExamples(row[tag]).split(/,|;/).some(el => el.startsWith(target) || removeParens(el).startsWith(target))));
+    const result_meaning_include = processed.filter(row => pos.some(tag => removeExamples(row[tag]).split(/,|;/).some(el => el.includes(target))));
     const result_arr = merge([result_word_start, result_word_include, result_meaning_equal, result_meaning_start, result_meaning_include]);
     
     result_arr.slice(0, 100).forEach(row => {
@@ -174,7 +174,7 @@ function merge(elements){
     return merged;
 }
 
-function cleanse(string){
+function removeExamples(string){
     return string.replace(/ ¶[^;]*(;|$)/g, '$1');
 }
 
@@ -183,7 +183,7 @@ function addMeanings(string){
     if(meanings.length == 1){
         const el = meanings[0];
 
-        add(`<div>${cleanse(el)}</div>`)
+        add(`<div>${removeExamples(el)}</div>`)
         if(el.includes(' ¶')){
             const examples = el.split(' ¶').slice(1);
             examples.forEach(ex => {
@@ -193,7 +193,7 @@ function addMeanings(string){
     }
     else{
         meanings.forEach((el, index) => {
-            add(`<div>${index+1}. ${cleanse(el)}</div>`);
+            add(`<div>${index+1}. ${removeExamples(el)}</div>`);
             if(el.includes(' ¶')){
                 const examples = el.split(' ¶').slice(1);
                 examples.forEach(ex => {
@@ -202,6 +202,10 @@ function addMeanings(string){
             }
         });
     }
+}
+
+function removeParens(string){
+    return string.replace(/\[[^\[\]]*\]|\([^\(\)]*\)/g, '');
 }
 
 setAssets().then(() => {
