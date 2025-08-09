@@ -14,6 +14,7 @@ let pos;
 const view = document.getElementById('view');
 const search_input = document.getElementById('search');
 const result = document.getElementById('result');
+const close_view = '<div class="close-view" onclick="resetView()">[닫기]</div>';
 
 async function setAssets(){
     const response1 = await fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vQWe2vHDfJZ6hiMH77Jlzl4lvdWjiPxtHi82mKNBfketCHSTfG4ClZf6crrXDQGfEcqa76su7SspZxY/pub?output=csv');
@@ -51,14 +52,16 @@ async function setAssets(){
 }
 
 function setUI(){
-    const buttons = ['information', 'sort',
-        'filter', 'statistics', 'word-chain',
+    const buttons = ['information', 'filter',
+        'sort', 'statistics', 'word-chain',
         'anagram', 'wordle', 'fazan', 'hangman'
     ];
 
     for(let i of buttons){
-        const functionName = i.replaceAll('-', '_');
+        const functionName = i.replace(/-/g, '_');
         document.getElementById(i).addEventListener('click', () => {
+            search_input.style.display = 'none';
+            result.style.display='none';
             window[functionName]();
         });
     }
@@ -69,22 +72,22 @@ function setUI(){
 }
 
 function search_language(target){
-    reset();
+    resetResult();
     
     const result_start = languages.filter(row => row['언어명'].startsWith(target));
     const result_include = languages.filter(row => row['언어명'].includes(target));
     const result_arr = merge([result_start, result_include]);
     
     result_arr.forEach(row => {
-        add(`<div class="head"><a href="?lang=${row['코드']}">${row['언어명']}</a></div>`);
-        add(`<div><span class="tag_em">코드</span>: ${row['코드']}</div>`);
-        row['설명'] && add(`<div class="information">${row['설명']}</div>`);
+        addResult(`<div class="head"><a href="?lang=${row['코드']}">${row['언어명']}</a></div>`);
+        addResult(`<div><span class="tag_em">코드</span>: ${row['코드']}</div>`);
+        row['설명'] && addResult(`<div class="information">${row['설명']}</div>`);
     });
 }
 
 // search_ver: 수직형 시트, 즉 다품사 어휘가 품사에 따라 다른 행에 나뉘는 방식
 function search_ver(target){
-    reset();
+    resetResult();
     if(target == ''){
         return;
     }
@@ -96,15 +99,15 @@ function search_ver(target){
     const result_arr = merge([result_word_start, result_word_include, result_meaning_equal, result_meaning_start, result_meaning_include]);
     
     result_arr.slice(0, 100).forEach(row => {
-        add(`<div class="head">${row['단어']}</div>`);
-        row['어원'] && add(`<div class="etymology">${row['어원']}</div>`);
-        add(`<div class="tag_em">${row['품사']}</div>`);
+        addResult(`<div class="head">${row['단어']}</div>`);
+        row['어원'] && addResult(`<div class="etymology">${row['어원']}</div>`);
+        addResult(`<div class="tag_em">${row['품사']}</div>`);
         addMeanings(row['뜻']);
 
-        (row['설명'] || row['비고']) && add(`<div class="information">${row['설명'] || row['비고']}</div>`);
+        (row['설명'] || row['비고']) && addResult(`<div class="information">${row['설명'] || row['비고']}</div>`);
         tags.forEach(el => {
             if(!reserved_tags.includes(el) && row[el]){
-                add(`<div><span class="tag">${el}</span><span> ${row[el]}</span></div>`);
+                addResult(`<div><span class="tag">${el}</span><span> ${row[el]}</span></div>`);
             }
         });
     });
@@ -112,7 +115,7 @@ function search_ver(target){
 
 // search_hor: 수평형 시트, 즉 다품사 어휘가 품사에 따라 같은 행의 다른 열에 나뉘는 방식
 function search_hor(target){
-    reset();
+    resetResult();
     if(target == ''){
         return;
     }
@@ -124,33 +127,40 @@ function search_hor(target){
     const result_arr = merge([result_word_start, result_word_include, result_meaning_equal, result_meaning_start, result_meaning_include]);
     
     result_arr.slice(0, 100).forEach(row => {
-        add(`<div class="head">${row['단어']}</div>`);
-        row['어원'] && add(`<div class="etymology">${row['어원']}</div>`);
+        addResult(`<div class="head">${row['단어']}</div>`);
+        row['어원'] && addResult(`<div class="etymology">${row['어원']}</div>`);
         pos.forEach(el => {
             if(row[el]){
-                add(`<div><span class="tag_em">${el}</span></div>`);
+                addResult(`<div><span class="tag_em">${el}</span></div>`);
                 addMeanings(row[el]);
             }
         });
-        (row['설명'] || row['비고']) && add(`<div class="information">${row['설명'] || row['비고']}</div>`);
+        (row['설명'] || row['비고']) && addResult(`<div class="information">${row['설명'] || row['비고']}</div>`);
         tags.forEach(el => {
             if(!reserved_tags.includes(el) && !all_pos.includes(el) && row[el]){
-                add(`<div><span class="tag">${el}</span> ${row[el]}</div>`);
+                addResult(`<div><span class="tag">${el}</span> ${row[el]}</div>`);
             }
         });
     });
 }
 
 function information(){
-    
+    addView(`<div><span class="tag">코드</span><span> ${lang['코드']}</span></div>`);
+    addView(`<div><span class="tag">언어명</span><span> ${lang['언어명']}</span></div>`);
+    addView(`<div><span class="tag">설명</span><span> ${lang['설명']}</span></div>`);
+    addView(close_view);
 }
 
-function reset(){
+function resetResult(){
     result.innerHTML = '';
 }
 
-function add(html){
+function addResult(html){
     result.insertAdjacentHTML('beforeend', html);
+}
+
+function addView(html){
+    view.insertAdjacentHTML('beforeend', html);
 }
 
 function merge(elements){
@@ -166,7 +176,7 @@ function merge(elements){
             return false;
         }
         else{
-            set.add(string);
+            set.addResult(string);
             return true;
         }
     });
@@ -183,21 +193,21 @@ function addMeanings(string){
     if(meanings.length == 1){
         const el = meanings[0];
 
-        add(`<div>${removeExamples(el)}</div>`)
+        addResult(`<div>${removeExamples(el)}</div>`)
         if(el.includes(' ¶')){
             const examples = el.split(' ¶').slice(1);
             examples.forEach(ex => {
-                add(`<div class="example">${ex.split('  ')[0]}<br>${ex.split('  ')[1]}</div>`);
+                addResult(`<div class="example">${ex.split('  ')[0]}<br>${ex.split('  ')[1]}</div>`);
             });
         }
     }
     else{
         meanings.forEach((el, index) => {
-            add(`<div>${index+1}. ${removeExamples(el)}</div>`);
+            addResult(`<div>${index+1}. ${removeExamples(el)}</div>`);
             if(el.includes(' ¶')){
                 const examples = el.split(' ¶').slice(1);
                 examples.forEach(ex => {
-                    add(`<div class="example">${ex.split('  ')[0]}<br>${ex.split('  ')[1]}</div>`);
+                    addResult(`<div class="example">${ex.split('  ')[0]}<br>${ex.split('  ')[1]}</div>`);
                 });
             }
         });
