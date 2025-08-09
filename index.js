@@ -14,7 +14,7 @@ let pos;
 const view = document.getElementById('view');
 const search_input = document.getElementById('search');
 const result = document.getElementById('result');
-const close_view = '<div class="close-view" onclick="resetView()">[닫기]</div>';
+const close_view = '<span class="close-view" onclick="resetView()">[닫기]</span>';
 
 async function setAssets(){
     const response1 = await fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vQWe2vHDfJZ6hiMH77Jlzl4lvdWjiPxtHi82mKNBfketCHSTfG4ClZf6crrXDQGfEcqa76su7SspZxY/pub?output=csv');
@@ -155,6 +155,10 @@ function resetResult(){
     result.innerHTML = '';
 }
 
+function resetView(){
+    view.innerHTML = '';
+}
+
 function addResult(html){
     result.insertAdjacentHTML('beforeend', html);
 }
@@ -176,7 +180,7 @@ function merge(elements){
             return false;
         }
         else{
-            set.addResult(string);
+            set.add(string);
             return true;
         }
     });
