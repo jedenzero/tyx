@@ -1,6 +1,7 @@
 let languages;
 let lang;
 let dictionary;
+let dictionary_type;
 let processed;
 let search;
 let tags;
@@ -14,7 +15,7 @@ let pos;
 const view = document.getElementById('view');
 const search_input = document.getElementById('search');
 const result = document.getElementById('result');
-const close_view = '<span class="close-view" onclick="closeView()">[닫기]</span>';
+const close_view = '<div id="close-view" onclick="closeView()">[닫기]</div>';
 
 async function setAssets(){
     const response1 = await fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vQWe2vHDfJZ6hiMH77Jlzl4lvdWjiPxtHi82mKNBfketCHSTfG4ClZf6crrXDQGfEcqa76su7SspZxY/pub?output=csv');
@@ -43,10 +44,12 @@ async function setAssets(){
 
         if(tags.includes('뜻')){
             search = search_ver;
+            dictionary_type = 'ver';
         }
         else{
             search = search_hor;
             pos = tags.filter(el => all_pos.includes(el));
+            dictionary_type = 'hor';
         }
     }
 }
@@ -60,9 +63,11 @@ function setUI(){
     for(let i of buttons){
         const functionName = i.replace(/-/g, '_');
         document.getElementById(i).addEventListener('click', () => {
+            view.innerHTML = '';
             search_input.style.display = 'none';
             result.style.display='none';
             window[functionName]();
+            addView(close_view);
         });
     }
     
@@ -145,10 +150,31 @@ function search_hor(target){
 }
 
 function information(){
+    let example_amount = 0;
+    
+    addView(`<div class="head">${lang['언어명']}</div>`);
+    lang['설명'] && addView(`<div class="information">${lang['설명']}</div>`);
     addView(`<div><span class="tag">코드</span><span> ${lang['코드']}</span></div>`);
-    addView(`<div><span class="tag">언어명</span><span> ${lang['언어명']}</span></div>`);
-    addView(`<div><span class="tag">설명</span><span> ${lang['설명']}</span></div>`);
-    addView(close_view);
+    lang['집필자'] && addView(`<div><span class="tag">집필자</span><span> ${lang['집필자']}</span></div>`);
+    addView(`<div><span class="tag">표제어 수</span><span> ${dictionary.length}개</span></div>`);
+    if(dictionary_type == 'ver'){
+        dictionary.forEach(row => {
+            example_amount += row['뜻'].split('¶').length - 1;
+        });
+        addView(`<div><span class="tag">예문 수</span><span> ${example_amount}개</span></div>`);
+    }
+    if(dictionary_type = 'hor'){
+        dictionary.forEach(row => {
+            pos.forEach(tag => {
+                example_amount += row[tag].split('¶').length - 1;
+            });
+        });
+        addView(`<div><span class="tag">예문 수</span><span> ${example_amount}개</span></div>`);
+    }
+}
+
+function statistics(){
+    
 }
 
 function resetResult(){
