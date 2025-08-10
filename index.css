@@ -53,12 +53,12 @@ body{
 	margin: 10px 0;
 }
 
-#close{
+#close-view{
 	user-select: none;
-	text-align: center;
+	margin-top: 20px;
 }
 
-#close:active{
+#close-view:active{
 	opacity: 0.75
 }
 
@@ -111,4 +111,17 @@ body{
 
 .information{
 	opacity: 0.75;
+}
+
+.input{
+	display: block;
+	margin: 50px auto;
+	border-radius: 0;
+	padding: 5px 10px;
+	border: 1px solid #EDEDF0;
+	outline: none;
+	background-color: inherit;
+	color: inherit;
+	font-family: inherit;
+	font-size: inherit;
 }
