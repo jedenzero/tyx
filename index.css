@@ -49,8 +49,8 @@ body{
 	opacity: 0.75;
 }
 
-#view-content{
-	margin: 10px 0;
+#view{
+	margin-top: 50px;
 }
 
 #close-view{
