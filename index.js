@@ -15,7 +15,7 @@ let pos;
 const view = document.getElementById('view');
 const search_input = document.getElementById('search');
 const result = document.getElementById('result');
-const close_view = '<div id="close-view" onclick="closeView()">[닫기]</div>';
+const close_view = '<div class="button" style="margin-top: 50px;" onclick="closeView()">[닫기]</div>';
 
 async function setAssets(){
     const response1 = await fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vQWe2vHDfJZ6hiMH77Jlzl4lvdWjiPxtHi82mKNBfketCHSTfG4ClZf6crrXDQGfEcqa76su7SspZxY/pub?output=csv');
@@ -154,7 +154,7 @@ function information(){
     
     addView(`<div class="head">${lang['언어명']}</div>`);
     lang['설명'] && addView(`<div class="information">${lang['설명']}</div>`);
-    addView(`<div><span class="tag">코드</span><span> ${lang['코드']}</span></div>`);
+    addView(`<div><span class="tag" style="margin-top: 10px;">코드</span><span> ${lang['코드']}</span></div>`);
     lang['집필자'] && addView(`<div><span class="tag">집필자</span><span> ${lang['집필자']}</span></div>`);
     addView(`<div><span class="tag">표제어 수</span><span> ${dictionary.length}개</span></div>`);
     if(dictionary_type == 'ver'){
@@ -174,7 +174,112 @@ function information(){
 }
 
 function statistics(){
+    let longest = ['', 0];
+    let most_polysemous = ['', 0];
     
+    dictionary.forEach(row => {
+        let meaning_amount = 0;
+        
+        if(longest[1] < row['단어'].length){
+            longest = [row['단어'], row['단어'].length];
+        }
+        if(dictionary_type == 'ver'){
+            meaning_amount = row['뜻'].split(';').length;
+        }
+        if(dictionary_type == 'hor'){
+            pos.forEach(tag => {
+                row[tag] && (meaning_amount += row[tag].split(';').length);
+            });
+        }
+        if(most_polysemous[1] < meaning_amount){
+            most_polysemous = [row['단어'], meaning_amount];
+        }
+    });
+    addView(`<div><span class="tag">가장 긴 단어</span><span> ${longest[0]}(${longest[1]}자)</span></div>`);
+    addView(`<div><span class="tag">가장 뜻이 많은 단어</span><span> ${most_polysemous[0]}(${most_polysemous[1]}개)</span></div>`);
+    addView(`<div><span class="tag">단일어 수       row['어원'] && addResult(`<div class="etymology">${row['어원']}</div>`);
+        pos.forEach(el => {
+            if(row[el]){
+                addResult(`<div><span class="tag_em">${el}</span></div>`);
+                addMeanings(row[el]);
+            }
+        });
+        (row['설명'] || row['비고']) && addResult(`<div class="information">${row['설명'] || row['비고']}</div>`);
+        tags.forEach(el => {
+            if(!reserved_tags.includes(el) && !all_pos.includes(el) && row[el]){
+                addResult(`<div><span class="tag">${el}</span> ${row[el]}</div>`);
+            }
+        });
+    });
+}
+
+function information(){
+    let example_amount = 0;
+    
+    addView(`<div class="head">${lang['언어명']}</div>`);
+    lang['설명'] && addView(`<div class="information">${lang['설명']}</div>`);
+    addView(`<div><span class="tag" style="margin-top: 10px;">코드</span><span> ${lang['코드']}</span></div>`);
+    lang['집필자'] && addView(`<div><span class="tag">집필자</span><span> ${lang['집필자']}</span></div>`);
+    addView(`<div><span class="tag">표제어 수</span><span> ${dictionary.length}개</span></div>`);
+    if(dictionary_type == 'ver'){
+        dictionary.forEach(row => {
+            example_amount += row['뜻'].split('¶').length - 1;
+        });
+        addView(`<div><span class="tag">예문 수</span><span> ${example_amount}개</span></div>`);
+    }
+    if(dictionary_type = 'hor'){
+        dictionary.forEach(row => {
+            pos.forEach(tag => {
+                example_amount += row[tag].split('¶').length - 1;
+            });
+        });
+        addView(`<div><span class="tag">예문 수</span><span> ${example_amount}개</span></div>`);
+    }
+}
+
+function statistics(){
+    let longest = ['', 0];
+    let most_polysemous = ['', 0];
+    let free_morpheme_amount;
+    let bound_morpheme_amount = 0;
+    let simple_word_amount;
+    let complex_word_amount = 0;
+    
+    dictionary.forEach(row => {
+        let meaning_amount = 0;
+        
+        if(longest[1] < row['단어'].length){
+            longest = [row['단어'], row['단어'].length];
+        }
+        if(dictionary_type == 'ver'){
+            meaning_amount = row['뜻'].split(';').length;
+        }
+        if(dictionary_type == 'hor'){
+            pos.forEach(tag => {
+                row[tag] && (meaning_amount += row[tag].split(';').length);
+            });
+        }
+        if(most_polysemous[1] < meaning_amount){
+            most_polysemous = [row['단어'], meaning_amount];
+        }
+        if(row['단어'].includes('-')){
+            bound_morpheme_amount++;
+        }
+        else{
+            tags.includes('어원') && row['어원'].includes('+') && complex_word_amount++;
+        }
+    });
+    free_morpheme_amount = dictionary.length - bound_morpheme_amount;
+    tags.includes('어원') && (simple_word_amount = free_morpheme_amount - complex_word_amount);
+    addView(`<div><span class="tag">가장 긴 단어</span><span> ${longest[0]}(${longest[1]}자)</span></div>`);
+    addView(`<div><span class="tag">가장 뜻이 많은 단어</span><span> ${most_polysemous[0]}(${most_polysemous[1]}개)</span></div>`);
+    addView(`<div class="head">형태소</div>`);
+    addView(`<div>자립 형태소: ${round(free_morpheme_amount/dictionary.length*100)}%(${free_morpheme_amount}개) 
+    의존 형태소: ${round(100 - round(free_morpheme_amount/dictionary.length*100))}%(${bound_morpheme_amount}개)</div>`);
+    console.log(round(free_morpheme_amount/dictionary.length*100));
+    tags.includes('어원') && addView(`<div class="head">단어</div>`);
+    tags.includes('어원') && addView(`<div>단일어: ${round(simple_word_amount/free_morpheme_amount*100)}%(${simple_word_amount}개) 
+    합성어: ${round(100 - round(simple_word_amount/free_morpheme_amount*100))}%(${complex_word_amount}개)</div>`);
 }
 
 function resetResult(){
@@ -248,6 +353,10 @@ function addMeanings(string){
 
 function removeParens(string){
     return string.replace(/\[[^\[\]]*\]|\([^\(\)]*\)/g, '');
+}
+
+function round(num){
+    return Math.round(num*10)/10;
 }
 
 setAssets().then(() => {
