@@ -53,15 +53,6 @@ body{
 	margin-top: 50px;
 }
 
-#close-view{
-	user-select: none;
-	margin-top: 20px;
-}
-
-#close-view:active{
-	opacity: 0.75
-}
-
 #search{
 	display: block;
 	margin: 50px auto;
@@ -124,4 +115,12 @@ body{
 	color: inherit;
 	font-family: inherit;
 	font-size: inherit;
+}
+
+.button{
+	user-select: none;
+}
+
+.button:active{
+	opacity: 0.75
 }
