@@ -12,6 +12,8 @@ const all_pos = ['명사', '대명사', '의존명사', '분류사', '수분류�
     '조사', '어두', '어미', '접속사', '감탄사', '의문사', '소사', '허사',
     '접두사', '접미사', '접요사', '접환사', '삽간사', '관통접사', '기타', '불명'];
 let pos;
+let allowed_pos = new Set([]);
+let allowed_tags = {};
 const view = document.getElementById('view');
 const search_input = document.getElementById('search');
 const result = document.getElementById('result');
@@ -39,11 +41,15 @@ async function setAssets(){
             header: true,
             skipEmptyLines: true
         }).data;
-        processed = [...dictionary];
         tags = Object.keys(dictionary[0]);
-
+        processed = [...dictionary];
         if(tags.includes('뜻')){
             search = search_ver;
+            tags.forEach(tag => {
+                if(tag == '품사' || tag.startsWith(':')){
+                    allowed_tags[tag] = new Set([]);
+                }
+            });
             dictionary_type = 'ver';
         }
         else{
@@ -188,13 +194,13 @@ function filter(){
             }
         });
         tags.includes('품사') && Object.keys(pos_amount).sort((a, b) => pos_amount[b] - pos_amount[a]).forEach(tag => {
-            pos_button_string += `<span class="button" onclick="this.classList.toggle('activated');">[${tag}]</span> `;
+            pos_button_string += `<span class="button${allowed_tags['품사'].has(tag) && ' activated'}" onclick="this.classList.toggle('activated'); toggle(allowed_tags['품사'], '${tag}'); filterProcess();">[${tag}]</span> `;
         });
     }
     if(dictionary_type == 'hor'){
         addView(`<div class="head">품사</div>`);
         pos.forEach(tag => {
-            pos_button_string += `<span class="button" onclick="this.classList.toggle('activated');">[${tag}]</span> `;
+            pos_button_string += `<span class="button" onclick="this.classList.toggle('activated'); toggle(allowed_pos, '${tag}');">[${tag}]</span> `;
         });
     }
     pos_button_string = pos_button_string.split(0, -1);
@@ -348,6 +354,19 @@ function addMeanings(string){
 
 function removeParens(string){
     return string.replace(/\[[^\[\]]*\]|\([^\(\)]*\)/g, '');
+}
+
+function toggle(set, element){
+    if(set.has(element)){
+        set.delete(element);
+    }
+    else{
+        set.add(element);
+    }
+}
+
+function filterProcess(){
+    processed = dictionary.filter(row => Object.keys(allowed_tags).every(tag => allowed_tags[tag].has(row[tag])));
 }
 
 function round(num){
