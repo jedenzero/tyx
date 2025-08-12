@@ -154,7 +154,7 @@ function information(){
     
     addView(`<div class="head">${lang['언어명']}</div>`);
     lang['설명'] && addView(`<div class="information">${lang['설명']}</div>`);
-    addView(`<div><span class="tag" style="margin-top: 10px;">코드</span><span> ${lang['코드']}</span></div>`);
+    addView(`<div style="margin-top: 25px;"><span class="tag">코드</span><span> ${lang['코드']}</span></div>`);
     lang['집필자'] && addView(`<div><span class="tag">집필자</span><span> ${lang['집필자']}</span></div>`);
     addView(`<div><span class="tag">표제어 수</span><span> ${dictionary.length}개</span></div>`);
     if(dictionary_type == 'ver'){
@@ -173,6 +173,38 @@ function information(){
     }
 }
 
+function filter(){
+    let pos_amount = {};
+    let pos_button_string = '';
+    
+    if(dictionary_type == 'ver'){
+        tags.includes('품사') && addView(`<div class="head">품사</div>`);
+        tags.includes('품사') && dictionary.forEach(row => {
+            if(Object.keys(pos_amount).includes(row['품사'])){
+                pos_amount[row['품사']]++;
+            }
+            else{
+                pos_amount[row['품사']] = 1;
+            }
+        });
+        tags.includes('품사') && Object.keys(pos_amount).sort((a, b) => pos_amount[b] - pos_amount[a]).forEach(tag => {
+            pos_button_string += `<span class="button" onclick="this.classList.toggle('activated');">[${tag}]</span> `;
+        });
+    }
+    if(dictionary_type == 'hor'){
+        addView(`<div class="head">품사</div>`);
+        pos.forEach(tag => {
+            pos_button_string += `<span class="button" onclick="this.classList.toggle('activated');">[${tag}]</span> `;
+        });
+    }
+    pos_button_string = pos_button_string.split(0, -1);
+    addView(`<div>${pos_button_string}</div>`);
+}
+
+function sort(){
+    
+}
+
 function statistics(){
     let longest = ['', 0];
     let most_polysemous = ['', 0];
@@ -182,7 +214,6 @@ function statistics(){
     let complex_word_amount = 0;
     let pos_amount = {};
     dictionary_type == 'hor' && pos.forEach(tag => {pos_amount[tag] = 0;});
-    let pos_amount_sum = 0;
     let pos_ratio_string = '';
     
     dictionary.forEach(row => {
@@ -194,11 +225,11 @@ function statistics(){
         if(dictionary_type == 'ver'){
             meaning_amount = row['뜻'].split(';').length;
             if(tags.includes('품사')){
-                if(!Object.keys(pos_amount).includes(row['품사'])){
-                    pos_amount[row['품사']] = 1;
+                if(Object.keys(pos_amount).includes(row['품사'])){
+                    pos_amount[row['품사']]++;
                 }
                 else{
-                    pos_amount[row['품사']]++;
+                    pos_amount[row['품사']] = 1;
                 }
             }
         }
@@ -207,7 +238,6 @@ function statistics(){
                 if(row[tag]){
                     meaning_amount += row[tag].split(';').length;
                     pos_amount[tag]++;
-                    pos_amount_sum++;
                 }
             });
         }
@@ -223,15 +253,16 @@ function statistics(){
     });
     free_morpheme_amount = dictionary.length - bound_morpheme_amount;
     tags.includes('어원') && (simple_word_amount = free_morpheme_amount - complex_word_amount);
+    addView(`<div class="head">단어</div>`);
     addView(`<div><span class="tag">가장 긴 단어</span><span> ${longest[0]}(${longest[1]}자)</span></div>`);
     addView(`<div><span class="tag">가장 뜻이 많은 단어</span><span> ${most_polysemous[0]}(${most_polysemous[1]}개)</span></div>`);
-    addView(`<div class="head">형태소</div>`);
+    addView(`<div class="head">형태소 비율</div>`);
     addView(`<div><span class="tag">자립 형태소</span><span> ${round(free_morpheme_amount/dictionary.length*100)}%(${free_morpheme_amount}개)</span> 
     <span class="tag">의존 형태소</span><span> ${round(100 - round(free_morpheme_amount/dictionary.length*100))}%(${bound_morpheme_amount}개)</span></div>`);
-    tags.includes('어원') && addView(`<div class="head">단어</div>`);
+    tags.includes('어원') && addView(`<div class="head">단어 비율</div>`);
     tags.includes('어원') && addView(`<div><span class="tag">단일어</span><span> ${round(simple_word_amount/free_morpheme_amount*100)}%(${simple_word_amount}개)</span> 
     <span class="tag">합성어</span><span> ${round(100 - round(simple_word_amount/free_morpheme_amount*100))}%(${complex_word_amount}개)</span></div>`);
-    addView(`<div class="head">품사</div>`);
+    addView(`<div class="head">품사별 비율</div>`);
     if(dictionary_type == 'ver'){
         Object.keys(pos_amount).sort((a, b) => pos_amount[b] - pos_amount[a]).forEach(tag => {
             pos_ratio_string += `<span class="tag">${tag}</span><span> ${round(pos_amount[tag]/dictionary.length*100)}%(${pos_amount[tag]}개)</span> `;
@@ -239,7 +270,7 @@ function statistics(){
     }
     if(dictionary_type == 'hor'){
         Object.keys(pos_amount).forEach(tag => {
-            pos_ratio_string += `<span class="tag">${tag}</span><span> ${round(pos_amount[tag]/pos_amount_sum*100)}%(${pos_amount[tag]}개)</span> `;
+            pos_ratio_string += `<span class="tag">${tag}</span><span> ${round(pos_amount[tag]/dictionary.length*100)}%(${pos_amount[tag]}개)</span> `;
         });
     }
     pos_ratio_string = pos_ratio_string.slice(0, -1);
