@@ -196,14 +196,13 @@ function filter(){
             }
         });
         tags.includes('품사') && Object.keys(pos_amount).sort((a, b) => pos_amount[b] - pos_amount[a]).forEach(tag => {
-            pos_button_string += `<span class="button${allowed_tags['품사'].has(tag) && ' activated'}" onclick="this.classList.toggle('activated'); toggle(allowed_tags['품사'], '${tag}'); filterProcess();">[${tag}]</span> `;
+            pos_button_string += `<span class="button${allowed_tags['품사'].size != pos_amount.length && allowed_tags['품사'].has(tag) ? ' activated' : ''}" onclick="verPosClick(this, '${tag}');">[${tag}]</span> `;
         });
     }
     if(dictionary_type == 'hor'){
         addView(`<div class="head">품사</div>`);
         pos.forEach(tag => {
-            pos_button_string += `<span class="button" onclick="this.classList.toggle('activated'); allowed_pos.size == pos.length && (allowed_pos = new Set([]));
-            toggle(allowed_pos, '${tag}'); allowed_pos.size == 0 && (allowed_pos = new Set(pos));">[${tag}]</span> `;
+            pos_button_string += `<span class="button${allowed_pos.size != pos.length && allowed_pos.has(tag) ? ' activated' : ''}" onclick="horPosClick(this, '${tag}');">[${tag}]</span> `;
         });
     }
     pos_button_string = pos_button_string.split(0, -1);
@@ -370,6 +369,22 @@ function toggle(set, element){
 
 function filterProcess(){
     processed = dictionary.filter(row => Object.keys(allowed_tags).every(tag => allowed_tags[tag].has(row[tag])));
+    processed.length == 0 && (processed = [...dictionary]);
+}
+
+function verPosClick(button, tag){
+    button.classList.toggle('activated');
+    toggle(allowed_tags['품사'], tag);
+    filterProcess();
+    search_ver(search_input.value);
+}
+
+function horPosClick(button, tag){
+    button.classList.toggle('activated');
+    allowed_pos.size == pos.length && (allowed_pos = new Set([]));
+    toggle(allowed_pos, tag);
+    allowed_pos.size == 0 && (allowed_pos = new Set(pos));
+    search_hor(search_input.value);
 }
 
 function round(num){
