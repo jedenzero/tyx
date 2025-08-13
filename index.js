@@ -202,7 +202,8 @@ function filter(){
     if(dictionary_type == 'hor'){
         addView(`<div class="head">품사</div>`);
         pos.forEach(tag => {
-            pos_button_string += `<span class="button" onclick="this.classList.toggle('activated'); toggle(allowed_pos, '${tag}'); allowed_pos">[${tag}]</span> `;
+            pos_button_string += `<span class="button" onclick="this.classList.toggle('activated'); allowed_pos.size == pos.length && (allowed_pos = new Set([]));
+            toggle(allowed_pos, '${tag}'); allowed_pos.size == 0 && (allowed_pos = new Set(pos));">[${tag}]</span> `;
         });
     }
     pos_button_string = pos_button_string.split(0, -1);
