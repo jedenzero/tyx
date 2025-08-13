@@ -12,7 +12,7 @@ const all_pos = ['명사', '대명사', '의존명사', '분류사', '수분류�
     '조사', '어두', '어미', '접속사', '감탄사', '의문사', '소사', '허사',
     '접두사', '접미사', '접요사', '접환사', '삽간사', '관통접사', '기타', '불명'];
 let pos;
-let allowed_pos = new Set([]);
+let allowed_pos;
 let allowed_tags = {};
 const view = document.getElementById('view');
 const search_input = document.getElementById('search');
@@ -55,6 +55,7 @@ async function setAssets(){
         else{
             search = search_hor;
             pos = tags.filter(el => all_pos.includes(el));
+            allowed_pos = new Set(pos);
             dictionary_type = 'hor';
         }
     }
@@ -130,11 +131,12 @@ function search_hor(target){
     if(target == ''){
         return;
     }
+    const allowed_pos_array = Array.from(allowed_pos);
     const result_word_start = processed.filter(row => row['단어'].startsWith(target)).toSorted((a, b) => a['단어'].length - b['단어'].length || a['단어'].localeCompare(b['단어']));
     const result_word_include = processed.filter(row => row['단어'].includes(target)).toSorted((a, b) => a['단어'].length - b['단어'].length || a['단어'].localeCompare(b['단어']));
-    const result_meaning_equal = processed.filter(row => pos.some(tag => removeExamples(row[tag]).split(/,\s|;\s/).some(el => el == target || removeParens(el) == target)));
-    const result_meaning_start = processed.filter(row => pos.some(tag => removeExamples(row[tag]).split(/,\s|;\s/).some(el => el.startsWith(target) || removeParens(el).startsWith(target))));
-    const result_meaning_include = processed.filter(row => pos.some(tag => removeExamples(row[tag]).split(/,\s|;\s/).some(el => el.includes(target))));
+    const result_meaning_equal = processed.filter(row => allowed_pos_array.some(tag => removeExamples(row[tag]).split(/,\s|;\s/).some(el => el == target || removeParens(el) == target)));
+    const result_meaning_start = processed.filter(row => allowed_pos_array.some(tag => removeExamples(row[tag]).split(/,\s|;\s/).some(el => el.startsWith(target) || removeParens(el).startsWith(target))));
+    const result_meaning_include = processed.filter(row => allowed_pos_array.some(tag => removeExamples(row[tag]).split(/,\s|;\s/).some(el => el.includes(target))));
     const result_arr = merge([result_word_start, result_word_include, result_meaning_equal, result_meaning_start, result_meaning_include]);
     
     result_arr.slice(0, 100).forEach(row => {
@@ -200,7 +202,7 @@ function filter(){
     if(dictionary_type == 'hor'){
         addView(`<div class="head">품사</div>`);
         pos.forEach(tag => {
-            pos_button_string += `<span class="button" onclick="this.classList.toggle('activated'); toggle(allowed_pos, '${tag}');">[${tag}]</span> `;
+            pos_button_string += `<span class="button" onclick="this.classList.toggle('activated'); toggle(allowed_pos, '${tag}'); allowed_pos">[${tag}]</span> `;
         });
     }
     pos_button_string = pos_button_string.split(0, -1);
