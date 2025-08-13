@@ -124,3 +124,7 @@ body{
 .button:active{
 	opacity: 0.75
 }
+
+.activated{
+	color: #50C8A0;
+}
