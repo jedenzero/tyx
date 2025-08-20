@@ -290,9 +290,8 @@ function word_chain(){
     globalThis.used_words = [];
     globalThis.bot_words = new Set(dictionary.filter(() => Math.random() < 0.3).map(row => row['단어']));
     globalThis.last_letter = '';
-    globalThis.player_first = 0;
     globalThis.game_over = 0;
-    addView(`<div id="box"></div><input class="input" onkeydown="word_chainPlayer(this, event);">`);
+    addView(`<div id="box"></div><input class="input" onkeydown="addChain(this, event);">`);
     globalThis.box = document.getElementById('box');
     
     if(Math.random() < 0.5){
@@ -306,7 +305,6 @@ function word_chain(){
     }
     else{
         addBox('<div>선공입니다.</div><div class="information">시작할 단어를 입력하세요.</div>');
-        player_first = 1;
     }
 }
 
@@ -408,53 +406,39 @@ function round(num){
     return Math.round(num*10)/10;
 }
 
-function word_chainPlayer(input, event){
-    if(event.key == 'Enter'){
-        addChain('나', input.value);
+function addChain(input, event){
+    if(event.key == 'Enter' && game_over == 0){
+        const word = input.value;
         input.value = '';
-        resetBox();
-        word_chainBot();
-    }
-}
-
-function word_chainBot(){
-    bot_words_arr = Array.from(bot_words);
-    possible_words = bot_words_arr.filter(el => el.startsWith(last_letter));
-    addChain('봇', possible_words[Math.floor(Math.random() * possible_words.length)]);
-}
-
-function addChain(player, word){
-    if(player_first == 1){
-        player_first = 0;
-        addBox(`<div><span class="tag">나</span><span> ${word}</span></div>`);
-        addBox('<div></div>');
-        bot_words.delete(word);
-        used_words.push(word);
-        last_letter = word[word.length - 1];
-        return;
-    }
-    if(game_over == 0){
-        if(dictionary.some(row => row['단어'] == word) && !used_words.includes(word) && word.startsWith(last_letter)){
-            if(player == '봇'){
-                addBox(`<div><span class="tag">나</span><span> ${used_words[used_words.length - 1]}</span></div>`);
-                addBox(`<div><span class="tag">봇</span><span> ${word}</span></div>`);
-            }
-            else{
-                addBox(`<div><span class="tag">봇</span><span> ${used_words[used_words.length - 1]}</span></div>`);
+        if(game_over == 0){
+            resetBox();
+            if(used_words.length == 0 && dictionary.some(row => row['단어'] == word)){
                 addBox(`<div><span class="tag">나</span><span> ${word}</span></div>`);
+                addBox('<div></div>');
+                bot_words.delete(word);
+                used_words.push(word);
+                last_letter = word[word.length - 1];
             }
-            bot_words.delete(word);
-            used_words.push(word);
-            last_letter = word[word.length - 1];
-        }
-        else{
-            if(player == '봇'){
-                addBox(`<div>승리했습니다!</div>`);
+            if(dictionary.some(row => row['단어'] == word) && !used_words.includes(word) && word.startsWith(last_letter)){
+                const bot_words_arr = Array.from(bot_words);
+                const possible_words = bot_words_arr.filter(el => el.startsWith(last_letter));
+                if(possible_words.length == 0){
+                    addBox(`<div>승리했습니다!</div>`);
+                    game_over = 1;
+                }
+                else{
+                    const bot_word = possible_words[Math.floor(Math.random() * possible_words.length)];
+                    addBox(`<div><span class="tag">나</span><span> ${word}</span></div>`);
+                    addBox(`<div><span class="tag">봇</span><span> ${bot_word}</span></div>`);
+                    bot_words.delete(word);
+                    used_words.push(word);
+                    last_letter = bot_word[bot_word.length - 1];
+                }
             }
             else{
                 addBox(`<div>패배했습니다!</div>`);
+                game_over = 1;
             }
-            game_over = 1;
         }
     }
 }
