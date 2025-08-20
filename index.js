@@ -409,25 +409,21 @@ function round(num){
 function addChain(input, event){
     if(event.key == 'Enter' && game_over == 0){
         const word = input.value;
+        
         input.value = '';
         if(game_over == 0){
             resetBox();
-            if(used_words.length == 0 && dictionary.some(row => row['단어'] == word)){
-                addBox(`<div><span class="tag">나</span><span> ${word}</span></div>`);
-                addBox('<div></div>');
-                bot_words.delete(word);
-                used_words.push(word);
-                last_letter = word[word.length - 1];
-            }
             if(dictionary.some(row => row['단어'] == word) && !used_words.includes(word) && word.startsWith(last_letter)){
                 const bot_words_arr = Array.from(bot_words);
                 const possible_words = bot_words_arr.filter(el => el.startsWith(last_letter));
+                
                 if(possible_words.length == 0){
                     addBox(`<div>승리했습니다!</div>`);
                     game_over = 1;
                 }
                 else{
                     const bot_word = possible_words[Math.floor(Math.random() * possible_words.length)];
+                    
                     addBox(`<div><span class="tag">나</span><span> ${word}</span></div>`);
                     addBox(`<div><span class="tag">봇</span><span> ${bot_word}</span></div>`);
                     bot_words.delete(word);
