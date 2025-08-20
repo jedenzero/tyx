@@ -424,7 +424,7 @@ function word_chainBot(){
 function addChain(player, word){
     if(player_first == 1){
         addBox(`<div><span class="tag">나</span><span> ${word}</span></div>`);
-        addBox('<div></div>);
+        addBox('<div></div>');
         bot_words.delete(word);
         used_words.push(word);
     }
