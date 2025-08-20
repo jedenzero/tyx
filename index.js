@@ -414,6 +414,7 @@ function addChain(input, event){
         if(game_over == 0){
             resetBox();
             if(dictionary.some(row => row['단어'] == word) && !used_words.includes(word) && word.startsWith(last_letter)){
+                last_letter = word[word.length - 1];
                 const bot_words_arr = Array.from(bot_words);
                 const possible_words = bot_words_arr.filter(el => el.startsWith(last_letter));
                 
