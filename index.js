@@ -290,17 +290,21 @@ function word_chain(){
     globalThis.used_words = [];
     globalThis.bot_words = new Set(dictionary.filter(() => Math.random() < 0.3).map(row => row['단어']));
     globalThis.last_letter = '';
+    globalThis.player_first = 0;
     addView(`<div id="box"></div><input class="input" onkeydown="word_chainPlayer(this, event);">`);
     globalThis.box = document.getElementById('box');
     
     if(Math.random() < 0.5){
         const bot_word = Array.from(bot_words)[Math.floor(Math.random() * bot_words.size)];
+        bot_words.delete(word);
+        used_words.push(word);
         
-        addChain('봇', bot_word);
+        addBox(`<div><span class="tag">봇</span><span> ${bot_word}</span></div>`);
         addBox('<div></div>');
     }
     else{
         addBox('<div>선공입니다.</div><div class="information">시작할 단어를 입력하세요.</div>');
+        player_first = 1;
     }
 }
 
@@ -407,9 +411,7 @@ function word_chainPlayer(input, event){
         addChain('나', input.value);
         input.value = '';
         resetBox();
-        setTimeout(() => {
-            word_chainBot();
-        }, 150 + Math.random() * 100);
+        word_chainBot();
     }
 }
 
@@ -420,16 +422,22 @@ function word_chainBot(){
 }
 
 function addChain(player, word){
+    if(player_first == 1){
+        addBox(`<div><span class="tag">나</span><span> ${word}</span></div>`);
+        addBox('<div></div>);
+        bot_words.delete(word);
+        used_words.push(word);
+    }
     if(dictionary.some(row => row['단어'] == word) && !used_words.includes(word) && word.startsWith(last_letter)){
         if(player == '봇'){
             addBox(`<div><span class="tag">나</span><span> ${used_words[used_words.length - 1]}</span></div>`);
             addBox(`<div><span class="tag">봇</span><span> ${word}</span></div>`);
-            bot_words.delete(word);
         }
         else{
             addBox(`<div><span class="tag">봇</span><span> ${used_words[used_words.length - 1]}</span></div>`);
             addBox(`<div><span class="tag">나</span><span> ${word}</span></div>`);
         }
+        bot_words.delete(word);
         used_words.push(word);
         last_letter = word[word.length - 1];
     }
