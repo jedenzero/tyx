@@ -14,13 +14,15 @@ const all_pos = ['명사', '대명사', '의존명사', '분류사', '수분류�
 let pos;
 let allowed_pos;
 let allowed_tags = {};
+const menu = document.getElementById('menu');
+const game = document.getElementById('game');
 const view = document.getElementById('view');
 const search_input = document.getElementById('search');
 const result = document.getElementById('result');
 const close_view = '<div class="button" style="margin-top: 50px;" onclick="closeView()">[닫기]</div>';
 
 async function setAssets(){
-    const response1 = await fetch('https://docs.google.com/spreadsheets/d/1ABeYLqNSbcUduAzQKk8r0nJf6hdLMUhwuyMOsDZONKY/export?format=csv&gid=0');
+    const response1 = await fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vQWe2vHDfJZ6hiMH77Jlzl4lvdWjiPxtHi82mKNBfketCHSTfG4ClZf6crrXDQGfEcqa76su7SspZxY/pub?output=csv');
     const text1 = await response1.text();
     languages = Papa.parse(text1, {
         header: true,
@@ -29,13 +31,15 @@ async function setAssets(){
     let query = new URL(window.location.href).searchParams.get('lang');
     
     if(query == null){
+        menu.style.visibility = 'hidden';
+        game.style.visibility = 'hidden';
         search = search_language;
     }
     else{
         lang = languages.find(el => el['코드'] == query);
-        const id = lang['아이디'];
-        const sheet = lang['시트'];
-        const response2 = await fetch(`https://docs.google.com/spreadsheets/d/${id}/export?format=csv&gid=${sheet}`);
+        document.title = `${lang['언어명']} - tyx`;
+        const link = lang['링크'];
+        const response2 = await fetch(`${link}`);
         const text2 = await response2.text();
         dictionary = Papa.parse(text2, {
             header: true,
