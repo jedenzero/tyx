@@ -22,7 +22,7 @@ const result = document.getElementById('result');
 const close_view = '<div class="button" style="margin-top: 50px;" onclick="closeView()">[닫기]</div>';
 
 async function setAssets(){
-    const response1 = await fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vQWe2vHDfJZ6hiMH77Jlzl4lvdWjiPxtHi82mKNBfketCHSTfG4ClZf6crrXDQGfEcqa76su7SspZxY/pub?output=csv');
+    const response1 = await fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vQWe2vHDfJZ6hiMH77Jlzl4lvdWjiPxtHi82mKNBfketCHSTfG4ClZf6crrXDQGfEcqa76su7SspZxY/pub?gid=0&output=csv');
     const text1 = await response1.text();
     languages = Papa.parse(text1, {
         header: true,
