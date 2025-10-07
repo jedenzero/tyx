@@ -35,6 +35,10 @@ async function setAssets(){
         menu.style.visibility = 'hidden';
         game.style.visibility = 'hidden';
         search = search_language;
+        if(search_input.value == ''){
+            resetResult();
+            addResult(`<div>완료!</div>`);
+        };
     }
     else{
         lang = languages.find(el => el['코드'] == query);
