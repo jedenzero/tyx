@@ -3,7 +3,7 @@ let lang;
 let dictionary;
 let dictionary_type;
 let processed;
-let example_dictionary;
+let example_dictionary = [];
 let search;
 let tags;
 const reserved_tags = ['단어', '어원', '뜻', '품사', '설명', '비고', '분류'];
