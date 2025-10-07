@@ -3,6 +3,7 @@ let lang;
 let dictionary;
 let dictionary_type;
 let processed;
+let example_dictionary;
 let search;
 let tags;
 const reserved_tags = ['단어', '어원', '뜻', '품사', '설명', '비고', '분류'];
@@ -54,15 +55,35 @@ async function setAssets(){
                     allowed_tags[tag] = new Set([]);
                 }
             });
+            dictionary.forEach(row => {
+                Array.from(row['뜻'].matchAll(/ ¶([^¶;]*)(?=\s¶|;|$)/g)).forEach(match => {
+                    const ex = match[1];
+                    example_dictionary.push([ex.split('  ')[0], ex.split('  ')[1]]);
+                });
+            });
             dictionary_type = 'ver';
         }
         else{
             search = search_hor;
             pos = tags.filter(el => all_pos.includes(el));
             allowed_pos = new Set(pos);
+            dictionary.forEach(row => {
+                pos.forEach(tag => {
+                    Array.from(row[tag].matchAll(/ ¶([^¶;]*)(?=\s¶|;|$)/g)).forEach(match => {
+                        const ex = match[1];
+                        example_dictionary.push([ex.split('  ')[0], ex.split('  ')[1]]);
+                    });
+                });
+            });
             dictionary_type = 'hor';
         }
-        search(search_input.value);
+        if(search_input.value == ''){
+            resetResult();
+            addResult(`<div>완료!</div>`);
+        }
+        else{
+            search(search_input.value);
+        }
     }
 }
 
@@ -162,6 +183,18 @@ function search_hor(target){
     });
 }
 
+function search_ex(target){
+    resetResult();
+    if(target == ''){
+        return;
+    }
+    const result_exs = example_dictionary.filter(row => row[0].includes(target) || row[1].includes(target));
+
+    result_exs.slice(0, 100).forEach(ex => {
+        addResult(`<div class="example">${ex[0]}<br>${ex[1]}</div>`);
+    });
+}
+
 function information(){
     let example_amount = 0;
     
@@ -213,6 +246,8 @@ function filter(){
     }
     pos_button_string = pos_button_string.trimEnd();
     addView(`<div>${pos_button_string}</div>`);
+    addView(`<div class="head">기타</div>`);
+    addView(`<div><span class="button${search == search_ex ? ' activated' : ''}" onclick="this.classList.toggle('activated') ? (search = search_ex) : (search = search_${dictionary_type}); search(search_input.value);">[예문 검색]</div>`);
 }
 
 function sort(){
