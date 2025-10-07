@@ -188,10 +188,14 @@ function search_ex(target){
     if(target == ''){
         return;
     }
-    const result_exs = example_dictionary.filter(row => row[0].includes(target) || row[1].includes(target));
-
-    result_exs.slice(0, 100).forEach(ex => {
-        addResult(`<div class="example">${ex[0]}<br>${ex[1]}</div>`);
+    const reg_exact = new RegExp(`(?:^|\\s)${target}[\\s\\.,\\!\\?$]`, 'i');
+    const reg_rough = new RegExp(target, 'i');
+    const result_exs_exact = example_dictionary.filter(row => row[0].match(reg_exact) || row[1].match(reg_exact));
+    const result_exs_rough = example_dictionary.filter(row => row[0].match(reg_rough) || row[1].match(reg_rough));
+    const result_arr = merge([result_exs_exact, result_exs_rough]);
+    
+    result_arr.slice(0, 100).forEach(ex => {
+        addResult(`<div class="example-independent">${ex[0]}<br>${ex[1]}</div>`);
     });
 }
 
