@@ -62,6 +62,7 @@ async function setAssets(){
             allowed_pos = new Set(pos);
             dictionary_type = 'hor';
         }
+        search(search_input.value);
     }
 }
 
@@ -115,7 +116,7 @@ function search_ver(target){
     const result_arr = merge([result_word_start, result_word_include, result_meaning_equal, result_meaning_start, result_meaning_include]);
     
     result_arr.slice(0, 100).forEach(row => {
-        addResult(`<div class="head">${row['단어']}</div>`);
+        addResult(`<div class="head">${row['단어']} ${lang['편집'] && `<a href="${lang['편집']}&range=A${dictionary.indexOf(row)+2}" target="_blank" class="edit">[편집]</a>`}</div>`);
         row['어원'] && addResult(`<div class="etymology">${row['어원']}</div>`);
         row['품사'] && addResult(`<div class="tag_em">${row['품사']}</div>`);
         addMeanings(row['뜻']);
@@ -144,7 +145,7 @@ function search_hor(target){
     const result_arr = merge([result_word_start, result_word_include, result_meaning_equal, result_meaning_start, result_meaning_include]);
     
     result_arr.slice(0, 100).forEach(row => {
-        addResult(`<div class="head">${row['단어']}</div>`);
+        addResult(`<div class="head">${row['단어']} ${lang['편집'] && `<a href="${lang['편집']}&range=A${dictionary.indexOf(row)+2}" target="_blank" class="edit">[편집]</a>`}</div>`);
         row['어원'] && addResult(`<div class="etymology">${row['어원']}</div>`);
         pos.forEach(el => {
             if(row[el]){
@@ -447,6 +448,7 @@ function addChain(input, event){
     }
 }
 
+addResult(`<div>시트를 불러오는 중입니다...</div>`);
 setAssets().then(() => {
     setUI();
 });
