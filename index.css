@@ -112,12 +112,8 @@ body{
 }
 
 .edit{
-	display: inline-block;
-	margin-top: 10px;
 	opacity:0.75;
 	font-size: 14px;
-	text-decoration: none;
-	color: inherit;
 }
 
 .input{
