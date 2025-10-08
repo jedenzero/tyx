@@ -416,7 +416,7 @@ function addMeanings(string){
         if(el.includes(' ¶')){
             const examples = el.split(' ¶').slice(1);
             examples.forEach(ex => {
-                addResult(`<div class="example">${ex.replace('  ', '<br>')}</div>`);
+                addResult(`<div class="example">${ex.replace(/\s\s/g, '<br>')}</div>`);
             });
         }
     }
@@ -426,7 +426,7 @@ function addMeanings(string){
             if(el.includes(' ¶')){
                 const examples = el.split(' ¶').slice(1);
                 examples.forEach(ex => {
-                    addResult(`<div class="example">${ex.replace('  ', '<br>')}</div>`);
+                    addResult(`<div class="example">${ex.replace(/\s\s/g, '<br>')}</div>`);
                 });
             }
         });
