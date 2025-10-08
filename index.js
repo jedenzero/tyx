@@ -62,7 +62,7 @@ async function setAssets(){
             dictionary.forEach(row => {
                 Array.from(row['뜻'].matchAll(/ ¶([^¶;]*)(?=\s¶|;|$)/g)).forEach(match => {
                     const ex = match[1];
-                    example_dictionary.push([ex.split('  ')[0], ex.split('  ')[1]]);
+                    example_dictionary.push(ex.split('  '));
                 });
             });
             dictionary_type = 'ver';
@@ -75,7 +75,7 @@ async function setAssets(){
                 pos.forEach(tag => {
                     Array.from(row[tag].matchAll(/ ¶([^¶;]*)(?=\s¶|;|$)/g)).forEach(match => {
                         const ex = match[1];
-                        example_dictionary.push([ex.split('  ')[0], ex.split('  ')[1]]);
+                        example_dictionary.push(ex.split('  '));
                     });
                 });
             });
@@ -194,12 +194,12 @@ function search_ex(target){
     }
     const reg_exact = new RegExp(`(?:^|\\s)${target}[\\s\\.,\\!\\?$]`, 'i');
     const reg_rough = new RegExp(target, 'i');
-    const result_exs_exact = example_dictionary.filter(row => row[0].match(reg_exact) || row[1].match(reg_exact));
-    const result_exs_rough = example_dictionary.filter(row => row[0].match(reg_rough) || row[1].match(reg_rough));
+    const result_exs_exact = example_dictionary.filter(row => row.some(el => el.match(reg_exact)));
+    const result_exs_rough = example_dictionary.filter(row => row.some(el => el.match(reg_rough)));
     const result_arr = merge([result_exs_exact, result_exs_rough]);
     
     result_arr.slice(0, 100).forEach(ex => {
-        addResult(`<div class="example-independent">${ex[0]}<br>${ex[1]}</div>`);
+        addResult(`<div class="example-independent">${ex.join('<br>')}</div>`);
     });
 }
 
@@ -416,7 +416,7 @@ function addMeanings(string){
         if(el.includes(' ¶')){
             const examples = el.split(' ¶').slice(1);
             examples.forEach(ex => {
-                addResult(`<div class="example">${ex.split('  ')[0]}<br>${ex.split('  ')[1]}</div>`);
+                addResult(`<div class="example">${ex.replace('  ', '<br>')}</div>`);
             });
         }
     }
@@ -426,7 +426,7 @@ function addMeanings(string){
             if(el.includes(' ¶')){
                 const examples = el.split(' ¶').slice(1);
                 examples.forEach(ex => {
-                    addResult(`<div class="example">${ex.split('  ')[0]}<br>${ex.split('  ')[1]}</div>`);
+                    addResult(`<div class="example">${ex.replace('  ', '<br>')}</div>`);
                 });
             }
         });
