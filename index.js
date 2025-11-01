@@ -280,7 +280,7 @@ function sort(){
 function statistics(){
     let longest = ['', 0];
     let most_polysemous = ['', 0];
-    let free_morpheme_amount;
+    let word_amount;
     let bound_morpheme_amount = 0;
     let simple_word_amount;
     let complex_word_amount = 0;
@@ -316,24 +316,24 @@ function statistics(){
         if(most_polysemous[1] < meaning_amount){
             most_polysemous = [row['단어'], meaning_amount];
         }
-        if(row['단어'].includes('-')){
+        if(row['단어'].startsWith('-') || row['단어'].endsWith('-') || row['단어'].includes('- -')){
             bound_morpheme_amount++;
         }
         else{
             tags.includes('어원') && row['어원'].includes('+') && complex_word_amount++;
         }
     });
-    free_morpheme_amount = dictionary.length - bound_morpheme_amount;
-    tags.includes('어원') && (simple_word_amount = free_morpheme_amount - complex_word_amount);
+    word_amount = dictionary.length - bound_morpheme_amount;
+    tags.includes('어원') && (simple_word_amount = word_amount - complex_word_amount);
     addView(`<div class="head">단어</div>`);
     addView(`<div><span class="tag">가장 긴 단어</span><span> ${longest[0]}(${longest[1]}자)</span></div>`);
     addView(`<div><span class="tag">가장 뜻이 많은 단어</span><span> ${most_polysemous[0]}(${most_polysemous[1]}개)</span></div>`);
-    addView(`<div class="head">형태소 비율</div>`);
-    addView(`<div><span class="tag">자립 형태소</span><span> ${round(free_morpheme_amount/dictionary.length*100)}%(${free_morpheme_amount}개)</span> 
-    <span class="tag">의존 형태소</span><span> ${round(100 - round(free_morpheme_amount/dictionary.length*100))}%(${bound_morpheme_amount}개)</span></div>`);
-    tags.includes('어원') && addView(`<div class="head">단어 비율</div>`);
-    tags.includes('어원') && addView(`<div><span class="tag">단일어</span><span> ${round(simple_word_amount/free_morpheme_amount*100)}%(${simple_word_amount}개)</span> 
-    <span class="tag">합성어</span><span> ${round(100 - round(simple_word_amount/free_morpheme_amount*100))}%(${complex_word_amount}개)</span></div>`);
+    addView(`<div class="head">어휘 구성</div>`);
+    addView(`<div><span class="tag">단어</span><span> ${round(word_amount/dictionary.length*100)}%(${word_amount}개)</span> 
+    <span class="tag">접사</span><span> ${round(100 - round(word_amount/dictionary.length*100))}%(${bound_morpheme_amount}개)</span></div>`);
+    tags.includes('어원') && addView(`<div class="head">단어 구성</div>`);
+    tags.includes('어원') && addView(`<div><span class="tag">단일어</span><span> ${round(simple_word_amount/word_amount*100)}%(${simple_word_amount}개)</span> 
+    <span class="tag">합성어</span><span> ${round(100 - round(simple_word_amount/word_amount*100))}%(${complex_word_amount}개)</span></div>`);
     addView(`<div class="head">품사별 비율</div>`);
     if(dictionary_type == 'ver'){
         Object.keys(pos_amount).sort((a, b) => pos_amount[b] - pos_amount[a]).forEach(tag => {
