@@ -270,7 +270,7 @@ function examples(){
     addView(`<div class="head">예문 검색</div>`);
     addView(`<div><span class="button${search == search_ex ? ' activated' : ''}" onclick="this.classList.toggle('activated') ? (search = search_ex) : (search = search_${dictionary_type}); search(search_input.value);">[켜기]</div>`);
     addView(`<div class="head">예문 필터</div>`);
-    addView(`<div><span class="button${search_exact_ex ? ' activated' : ''}" onclick="this.classList.toggle('activated'); search_exact_ex = !search_exact_ex;">[정확히 일치]</span></div>`);
+    addView(`<div><span class="button${search_exact_ex ? ' activated' : ''}" onclick="this.classList.toggle('activated'); search_exact_ex = !search_exact_ex; search(search_input.value);">[정확히 일치]</span></div>`);
 }
 
 function sort(){
