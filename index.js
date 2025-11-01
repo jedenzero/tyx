@@ -15,6 +15,7 @@ const all_pos = ['명사', '대명사', '의존명사', '분류사', '수분류�
 let pos;
 let allowed_pos;
 let allowed_tags = {};
+let search_exact_ex = true;
 const menu = document.getElementById('menu');
 const game = document.getElementById('game');
 const view = document.getElementById('view');
@@ -92,7 +93,7 @@ async function setAssets(){
 }
 
 function setUI(){
-    const buttons = ['information', 'filter',
+    const buttons = ['information', 'filter', 'examples',
         'sort', 'statistics', 'word-chain',
         'anagram', 'wordle', 'fazan', 'hangman'
     ];
@@ -133,11 +134,12 @@ function search_ver(target){
     if(target == ''){
         return;
     }
-    const result_word_start = processed.filter(row => row['단어'].startsWith(target)).toSorted((a, b) => a['단어'].length - b['단어'].length || a['단어'].localeCompare(b['단어']));
-    const result_word_include = processed.filter(row => row['단어'].includes(target)).toSorted((a, b) => a['단어'].length - b['단어'].length || a['단어'].localeCompare(b['단어']));
-    const result_meaning_equal = processed.filter(row => removeExamples(row['뜻']).split(/,\s|;\s/).some(meaning => meaning == target || removeParens(meaning) == target));
-    const result_meaning_start = processed.filter(row => removeExamples(row['뜻']).split(/,\s|;\s/).some(meaning => meaning.startsWith(target) || removeParens(meaning).startsWith(target)));
-    const result_meaning_include = processed.filter(row => removeExamples(row['뜻']).split(/,\s|;\s/).some(meaning => meaning.includes(target)));
+    const target_lower = target.toLowerCase();
+    const result_word_start = processed.filter(row => row['단어'].toLowerCase().startsWith(target_lower)).toSorted((a, b) => a['단어'].length - b['단어'].length || a['단어'].localeCompare(b['단어']));
+    const result_word_include = processed.filter(row => row['단어'].toLowerCase().includes(target_lower)).toSorted((a, b) => a['단어'].length - b['단어'].length || a['단어'].localeCompare(b['단어']));
+    const result_meaning_equal = processed.filter(row => removeExamples(row['뜻']).split(/,\s|;\s/).some(meaning => meaning.toLowerCase() == target || removeParens(meaning.toLowerCase()) == target_lower));
+    const result_meaning_start = processed.filter(row => removeExamples(row['뜻']).split(/,\s|;\s/).some(meaning => meaning.toLowerCase().startsWith(target) || removeParens(meaning).toLowerCase().startsWith(target_lower)));
+    const result_meaning_include = processed.filter(row => removeExamples(row['뜻']).split(/,\s|;\s/).some(meaning => meaning.toLowerCase().includes(target)));
     const result_arr = merge([result_word_start, result_word_include, result_meaning_equal, result_meaning_start, result_meaning_include]);
     
     result_arr.slice(0, 100).forEach(row => {
@@ -161,12 +163,13 @@ function search_hor(target){
     if(target == ''){
         return;
     }
+    const target_lower = target.toLowerCase();
     const allowed_pos_array = Array.from(allowed_pos);
-    const result_word_start = processed.filter(row => allowed_pos_array.some(tag => row[tag].length != 0) && row['단어'].startsWith(target)).toSorted((a, b) => a['단어'].length - b['단어'].length || a['단어'].localeCompare(b['단어']));
-    const result_word_include = processed.filter(row => allowed_pos_array.some(tag => row[tag].length != 0) && row['단어'].includes(target)).toSorted((a, b) => a['단어'].length - b['단어'].length || a['단어'].localeCompare(b['단어']));
-    const result_meaning_equal = processed.filter(row => allowed_pos_array.some(tag => removeExamples(row[tag]).split(/,\s|;\s/).some(el => el == target || removeParens(el) == target)));
-    const result_meaning_start = processed.filter(row => allowed_pos_array.some(tag => removeExamples(row[tag]).split(/,\s|;\s/).some(el => el.startsWith(target) || removeParens(el).startsWith(target))));
-    const result_meaning_include = processed.filter(row => allowed_pos_array.some(tag => removeExamples(row[tag]).split(/,\s|;\s/).some(el => el.includes(target))));
+    const result_word_start = processed.filter(row => allowed_pos_array.some(tag => row[tag].length != 0) && row['단어'].toLowerCase().startsWith(target_lower)).toSorted((a, b) => a['단어'].length - b['단어'].length || a['단어'].localeCompare(b['단어']));
+    const result_word_include = processed.filter(row => allowed_pos_array.some(tag => row[tag].length != 0) && row['단어'].toLowerCase().includes(target_lower)).toSorted((a, b) => a['단어'].length - b['단어'].length || a['단어'].localeCompare(b['단어']));
+    const result_meaning_equal = processed.filter(row => allowed_pos_array.some(tag => removeExamples(row[tag]).split(/,\s|;\s/).some(el => el.toLowerCase() == target_lower || removeParens(el.toLowerCase()) == target_lower)));
+    const result_meaning_start = processed.filter(row => allowed_pos_array.some(tag => removeExamples(row[tag]).split(/,\s|;\s/).some(el => el.toLowerCase().startsWith(target_lower) || removeParens(el.toLowerCase()).startsWith(target_lower))));
+    const result_meaning_include = processed.filter(row => allowed_pos_array.some(tag => removeExamples(row[tag]).split(/,\s|;\s/).some(el => el.toLowerCase().includes(target_lower))));
     const result_arr = merge([result_word_start, result_word_include, result_meaning_equal, result_meaning_start, result_meaning_include]);
     
     result_arr.slice(0, 100).forEach(row => {
@@ -197,10 +200,17 @@ function search_ex(target){
     const result_exs_exact = example_dictionary.filter(row => row.some(el => el.match(reg_exact)));
     const result_exs_rough = example_dictionary.filter(row => row.some(el => el.match(reg_rough)));
     const result_arr = merge([result_exs_exact, result_exs_rough]);
-    
-    result_arr.slice(0, 100).forEach(ex => {
-        addResult(`<div class="example-independent">${ex.join('<br>')}</div>`);
-    });
+
+    if(search_exact_ex){
+        result_exs_exact.slice(0, 100).forEach(ex => {
+            addResult(`<div class="example-independent">${ex.join('<br>')}</div>`);
+        });
+    }
+    else{
+        result_arr.slice(0, 100).forEach(ex => {
+            addResult(`<div class="example-independent">${ex.join('<br>')}</div>`);
+        });
+    }
 }
 
 function information(){
@@ -254,8 +264,12 @@ function filter(){
     }
     pos_button_string = pos_button_string.trimEnd();
     addView(`<div>${pos_button_string}</div>`);
-    addView(`<div class="head">기타</div>`);
-    addView(`<div><span class="button${search == search_ex ? ' activated' : ''}" onclick="this.classList.toggle('activated') ? (search = search_ex) : (search = search_${dictionary_type}); search(search_input.value);">[예문 검색]</div>`);
+}
+
+function examples(){
+    addView(`<div><span class="button${search == search_ex ? ' activated' : ''}" onclick="this.classList.toggle('activated') ? (search = search_ex) : (search = search_${dictionary_type}); search(search_input.value);">[켜기]</div>`);
+    addView(`<div class="head">예문 필터</div>`);
+    addView(`<div><span class="button${search_exact_ex ? ' activated' : ''}" onclick="this.classList.toggle('activated'); search_exact_ex = !search_exact_ex;">정확히 일치</span></div>`);
 }
 
 function sort(){
